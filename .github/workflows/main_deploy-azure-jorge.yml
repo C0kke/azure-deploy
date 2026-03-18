@@ -47,7 +47,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -55,11 +55,24 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1A8146E79B0D492CA7202FD5714FFB3F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C8303020D152405BB43ED8B6260A45ED }}
 
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+      - name: Login to ACR
+        uses: azure/docker-login@v1
         with:
-          app-name: 'deploy-azure-jorge'
-          slot-name: 'Production'
-          package: .
+          login-server: deployazurejorgeacr.azurecr.io
+
+      - name: Build and push Docker image to ACR
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: deployazurejorgeacr.azurecr.io/api-azure-deploy:${{ github.sha }}
+
+      - name: Configure App Service to use container image
+        uses: azure/cli@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az webapp config container set --name deploy-azure-jorge --resource-group deploy-azure-jorge_group --docker-custom-image-name deployazurejorgeacr.azurecr.io/api-azure-deploy:${{ github.sha }}
+            az webapp config appsettings set --name deploy-azure-jorge --resource-group deploy-azure-jorge_group --settings WEBSITES_PORT=3000
+            az webapp restart --name deploy-azure-jorge --resource-group deploy-azure-jorge_group
           
