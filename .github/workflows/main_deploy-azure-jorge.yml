@@ -55,10 +55,12 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1A8146E79B0D492CA7202FD5714FFB3F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C8303020D152405BB43ED8B6260A45ED }}
 
-      - name: Login to ACR
-        uses: azure/docker-login@v1
+      - name: Login to ACR via Azure CLI
+        uses: azure/cli@v1
         with:
-          login-server: deployazurejorgeacr.azurecr.io
+          azcliversion: latest
+          inlineScript: |
+            az acr login --name deployazurejorgeacr
 
       - name: Build and push Docker image to ACR
         uses: docker/build-push-action@v4
