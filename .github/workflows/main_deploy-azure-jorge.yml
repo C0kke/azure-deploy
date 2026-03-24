@@ -71,12 +71,6 @@ jobs:
 
       - name: Configure App Service
         run: |
-          az webapp config container set --name deploy-azure-jorge --resource-group deploy-azure-jorge_group --docker-custom-image-name deployazurejorgeacr.azurecr.io/api-azure-deploy:${{ github.sha }}
-          
-          # Añadimos WEBSITES_CONTAINER_START_TIME_LIMIT para evitar que Azure lo mate rápido
-          az webapp config appsettings set --name deploy-azure-jorge --resource-group deploy-azure-jorge_group --settings \
-            WEBSITES_PORT=3000 \
-            WEBSITES_CONTAINER_START_TIME_LIMIT=1800 \
-            NODE_ENV=production
-            
+          az webapp config container set --name deploy-azure-jorge --resource-group deploy-azure-jorge_group --container-image-name deployazurejorgeacr.azurecr.io/api-azure-deploy:${{ github.sha }}
+          az webapp config appsettings set --name deploy-azure-jorge --resource-group deploy-azure-jorge_group --settings "WEBSITES_PORT=3000" "WEBSITES_CONTAINER_START_TIME_LIMIT=1800" "NODE_ENV=production" "PORT=3000"          
           az webapp restart --name deploy-azure-jorge --resource-group deploy-azure-jorge_group
