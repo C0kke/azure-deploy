@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, All } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -11,12 +11,17 @@ export class AppController {
   }
 
   @Get(':number')
-  getNumber(@Param('number') number: number) : number {
+  getNumber(@Param('number') number: any) : number | string {
     return this.appService.getNumber(number);
   }
   
   @Post('user-data')
-  getUserData(@Body() data: any) : string {
+  getUserData(@Body() data: any) : any {
     return this.appService.getUserData(data);
+  }
+
+  @All('*')
+  catchAll(): string {
+    return 'inaccesible';
   }
 }
